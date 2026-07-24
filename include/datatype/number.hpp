@@ -4,24 +4,31 @@
 namespace Phytra{
 template<typename T> requires (std::is_integral_v<T>)
 class rational{
-    //Assumes T is a integral type. Not tensor
+    //For complex and other types, the variables are public for easy read and modify. But here they have to be private because we need to maintain the 
+    //invariant that the fraction is always in reduced form and denominator is always positive. 
+    //So we have to use a constructor and assignment operator to enforce this invariant.
+    T num = 0;
+    T den = 1;
 public:
     using value_type = T;
-    value_type num = 0;
-    value_type den = 1;
     rational() = default;
-    rational(const value_type num, const value_type den = 1){
+    template<typename U> requires (std::is_integral_v<T>)
+    rational(U num, U den = 1){
         if (den < 0) { num = -num; den = -den; }
         auto g = std::gcd(num, den);
         if (g == 0) g = 1;           // guards the (0,0) case below
-        this->num = num / g;
-        this->den = den / g;
+        this->num = static_cast<value_type>(num/g);
+        this->den = static_cast<value_type>(den/g);
     }
 
     rational<value_type>& operator=(const value_type num){
         this->num = num;
         this->den = 1;
+        return *this;
     }
+
+    __attribute__((always_inline, hot)) value_type numerator() const { return num; }
+    __attribute__((always_inline, hot)) value_type denominator() const { return den; }
 };
 template<typename T>
 struct is_rational : std::false_type {};
@@ -31,15 +38,23 @@ template<typename T>
 concept IsRational = is_rational<T>::value;
 template<typename T>
 concept IsNotRational = !is_rational<T>::value;
+template <typename T>
+constexpr bool is_signed_rational_or_signed_v = std::is_signed_v<T> || []{
+    if constexpr (is_rational<T>::value)
+        return std::is_signed_v<typename T::value_type>;
+    else
+        return false;
+}();
+
 
 template<typename Target, typename Source>
 constexpr Target convert_to(const Source& s){
     if constexpr (is_rational<Source>::value && is_rational<Target>::value){
         using Inner = typename Target::value_type;
-        return Target(static_cast<Inner>(s.num), static_cast<Inner>(s.den));  
+        return Target(static_cast<Inner>(s.numerator()), static_cast<Inner>(s.denominator()));  
     } 
     else if constexpr (is_rational<Source>::value && !is_rational<Target>::value){
-        return static_cast<Target>(s.num) / static_cast<Target>(s.den);      
+        return static_cast<Target>(s.numerator()) / static_cast<Target>(s.denominator());      
     } 
     else if constexpr (!is_rational<Source>::value && is_rational<Target>::value){
         return Target(static_cast<typename Target::value_type>(s));  
@@ -134,81 +149,39 @@ concept IsNotQuaternionOrComplex = !is_quaternion<T>::value && !is_complex<T>::v
 template<typename T> requires (std::is_integral_v<T> || std::is_floating_point_v<T> || is_rational<T>::value)
 class dual_quaternion{
 public:
-    T r = 0;
-    T i = 0;
-    T j = 0;
-    T k = 0;
-    T e_r = 0;
-    T e_i = 0;
-    T e_j = 0;
-    T e_k = 0;
+    quaternion<T> q;
+    quaternion<T> e;
 
     dual_quaternion() = default;
     template<IsNotQuaternionOrComplex U0, IsNotQuaternionOrComplex U1 = T, IsNotQuaternionOrComplex U2 = T, IsNotQuaternionOrComplex U3 = T, 
              IsNotQuaternionOrComplex U4 = T, IsNotQuaternionOrComplex U5 = T, IsNotQuaternionOrComplex U6 = T, IsNotQuaternionOrComplex U7 = T>
     dual_quaternion(const U0 r, const U1 i = U1(0), const U2 j = U2(0), const U3 k = U3(0), const U4 e_r = U4(0), const U5 e_i = U5(0), const U6 e_j = U6(0), const U7 e_k = U7(0)){
-        this->r = convert_to<T>(r);
-        this->i = convert_to<T>(i);
-        this->j = convert_to<T>(j);
-        this->k = convert_to<T>(k);
-        this->e_r = convert_to<T>(e_r);
-        this->e_i = convert_to<T>(e_i);
-        this->e_j = convert_to<T>(e_j);
-        this->e_k = convert_to<T>(e_k);
+        this->q = quaternion<T>(convert_to<T>(r), convert_to<T>(i), convert_to<T>(j), convert_to<T>(k));
+        this->e = quaternion<T>(convert_to<T>(e_r), convert_to<T>(e_i), convert_to<T>(e_j), convert_to<T>(e_k));
     }
     dual_quaternion(const quaternion<T> q, const quaternion<T> e = 0){
-        this->r = q.r;
-        this->i = q.i;
-        this->j = q.j;
-        this->k = q.k;
-        this->e_r = e.r;
-        this->e_i = e.i;
-        this->e_j = e.j;
-        this->e_k = e.k;
+        this->q = q;
+        this->e = e;
     }
     dual_quaternion(const complex<T> c, const complex<T> e = 0){
-        this->r = c.r;
-        this->i = c.i;
-        this->j = 0;
-        this->k = 0;
-        this->e_r = e.r;
-        this->e_i = e.i;
-        this->e_j = 0;
-        this->e_k = 0;
+        this->q = quaternion<T>(c.r, c.i, 0, 0);
+        this->e = quaternion<T>(e.r, e.i, 0, 0);
     }
 
     template<IsNotQuaternionOrComplex U>
     dual_quaternion<T>& operator=(const U r){
-        this->r = convert_to<T>(r);
-        this->i = 0;
-        this->j = 0;
-        this->k = 0;
-        this->e_r = 0;
-        this->e_i = 0;
-        this->e_j = 0;
-        this->e_k = 0;
+        this->q = quaternion<T>(convert_to<T>(r));
+        this->e = quaternion<T>(0);
         return *this;
     }
     dual_quaternion<T>& operator=(const complex<T> c){
-        this->r = c.r;
-        this->i = c.i;
-        this->j = 0;
-        this->k = 0;
-        this->e_r = 0;
-        this->e_i = 0;
-        this->e_j = 0;
-        this->e_k = 0;
+        this->q = quaternion<T>(c.r, c.i, 0, 0);
+        this->e = quaternion<T>(0);
         return *this;
     }
     dual_quaternion<T>& operator=(const quaternion<T> q){
-        this->r = q.r;
-        this->i = q.i;
-        this->j = q.j;
-        this->k = q.k;
-        this->e_r = 0;
-        this->e_i = 0;
-        this->e_j = 0;
-        this->e_k = 0;
+        this->q = q;
+        this->e = quaternion<T>(0);
         return *this;
     }
 };
