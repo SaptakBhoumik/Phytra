@@ -92,5 +92,177 @@ complex<T> log_1p(const complex<T> lhs, const complex<T> rhs){
 }
 
 //Trigonometric functions
+template<typename T>
+complex<T> sin(const complex<T> lhs){
+    const auto i_lhs = complex<T>(-lhs.i, lhs.r);//i*lhs
+    const auto e_c = exp(i_lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return (e_c - e_c_inv) / complex<T>(T(0), T(2));
+}
+template<typename T>
+complex<T> cos(const complex<T> lhs){
+    const auto i_lhs = complex<T>(-lhs.i, lhs.r);//i*lhs
+    const auto e_c = exp(i_lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return (e_c + e_c_inv) / complex<T>(T(2), T(0));
+}
+template<typename T>
+complex<T> tan(const complex<T> lhs){
+    const auto i_lhs = complex<T>(-lhs.i, lhs.r);//i*lhs
+    const auto e_c = exp(i_lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return ((e_c - e_c_inv)*complex<T>(T(0), T(-1)))/ (e_c + e_c_inv);
+}
+template<typename T>
+complex<T> cosec(const complex<T> lhs){
+    const auto i_lhs = complex<T>(-lhs.i, lhs.r);//i*lhs
+    const auto e_c = exp(i_lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return complex<T>(T(0), T(2)) / (e_c - e_c_inv) ;
+}
+template<typename T>
+complex<T> sec(const complex<T> lhs){
+    const auto i_lhs = complex<T>(-lhs.i, lhs.r);//i*lhs
+    const auto e_c = exp(i_lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return complex<T>(T(2), T(0)) / (e_c + e_c_inv);
+}
+template<typename T>
+complex<T> cot(const complex<T> lhs){
+    const auto i_lhs = complex<T>(-lhs.i, lhs.r);//i*lhs
+    const auto e_c = exp(i_lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return (e_c + e_c_inv) / ((e_c - e_c_inv)*complex<T>(T(0), T(-1)));
+}
 
+template<typename T>
+complex<T> asin(const complex<T> z){
+    const auto iz = complex<T>(-z.i, z.r); // i*z
+    const auto sq = sqrt(complex<T>(T(1),T(0)) - z*z);// sqrt(1-z^2)
+    const auto ln = log(iz + sq);
+    return complex<T>(ln.i, -ln.r); // -i*ln
+}
+template<typename T>
+complex<T> acos(const complex<T> z){
+    const auto sq = sqrt(complex<T>(T(1),T(0)) - z*z); // sqrt(1-z^2)
+    const auto i_sq = complex<T>(-sq.i, sq.r); // i*sqrt(1-z^2)
+    const auto ln = log(z + i_sq);
+    return complex<T>(ln.i, -ln.r); // -i*ln
+}
+template<typename T>
+complex<T> atan(const complex<T> z){
+    const auto iz = complex<T>(-z.i, z.r); // i*z
+    const auto num = complex<T>(T(1),T(0)) - iz; // 1-iz
+    const auto den = complex<T>(T(1),T(0)) + iz; // 1+iz
+    const auto ln = log(num/den);
+    return complex<T>(-ln.i/T(2), ln.r/T(2)); // (i/2)*ln
+}
+template<typename T>
+complex<T> atan2(const complex<T> lhs, const complex<T> rhs){
+    return atan(lhs/rhs);
+}
+template<typename T>
+complex<T> asec(const complex<T> z){
+    const auto inv_z = complex<T>(T(1),T(0))/z;
+    return acos(inv_z);
+}
+template<typename T>
+complex<T> acosec(const complex<T> z){
+    const auto inv_z = complex<T>(T(1),T(0))/z;
+    return asin(inv_z);
+}
+template<typename T>
+complex<T> acot(const complex<T> z){
+    const auto inv_z = complex<T>(T(1),T(0))/z;
+    return atan(inv_z);
+}
+template<typename T>
+complex<T> acot2(const complex<T> lhs, const complex<T> rhs){
+    return acot(lhs/rhs);
+}
+
+template<typename T>
+complex<T> sinh(const complex<T> lhs){
+    const auto e_c = exp(lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return (e_c - e_c_inv) / complex<T>(T(2), T(0));
+}
+template<typename T>
+complex<T> cosh(const complex<T> lhs){
+    const auto e_c = exp(lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return (e_c + e_c_inv) / complex<T>(T(2), T(0));
+}
+template<typename T>
+complex<T> tanh(const complex<T> lhs){
+    const auto e_c = exp(lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return (e_c - e_c_inv) / (e_c + e_c_inv);
+}
+template<typename T>
+complex<T> sech(const complex<T> lhs){
+    const auto e_c = exp(lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return complex<T>(T(2), T(0)) / (e_c + e_c_inv);
+}
+template<typename T>
+complex<T> cosech(const complex<T> lhs){
+    const auto e_c = exp(lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return complex<T>(T(2), T(0)) / (e_c - e_c_inv);
+}
+template<typename T>
+complex<T> coth(const complex<T> lhs){
+    const auto e_c = exp(lhs);
+    const auto e_c_inv = complex<T>(T(1),T(0))/e_c;
+    return (e_c + e_c_inv) / (e_c - e_c_inv);
+}
+
+template<typename T>
+complex<T> asinh(const complex<T> z){
+    const auto sq = sqrt(z*z + complex<T>(T(1),T(0)));   // sqrt(z^2+1)
+    return log(z + sq);
+}
+template<typename T>
+complex<T> acosh(const complex<T> z){
+    const auto sq = sqrt(z*z - complex<T>(T(1),T(0)));   // sqrt(z^2-1)
+    return log(z + sq);
+}
+template<typename T>
+complex<T> atanh(const complex<T> z){
+    const auto num = complex<T>(T(1),T(0)) + z;           // 1+z
+    const auto den = complex<T>(T(1),T(0)) - z;           // 1-z
+    return log(num/den) / complex<T>(T(2),T(0));
+}
+template<typename T>
+complex<T> asech(const complex<T> z){
+    const auto inv_z = complex<T>(T(1),T(0))/z;
+    return acosh(inv_z);
+}
+template<typename T>
+complex<T> acosech(const complex<T> z){
+    const auto inv_z = complex<T>(T(1),T(0))/z;
+    return asinh(inv_z);
+}
+template<typename T>
+complex<T> acoth(const complex<T> z){
+    const auto inv_z = complex<T>(T(1),T(0))/z;
+    return atanh(inv_z);
+}
+
+//Rounding/classification
+template<typename T>
+T abs(const complex<T> lhs){
+    return sqrt(lhs.r*lhs.r + lhs.i*lhs.i);
+}
+
+//Other
+template<typename T>
+complex<T> mod(const complex<T> lhs, const complex<T> rhs){
+    return lhs % rhs;
+}
+template<typename T>
+complex<T> hypot(const complex<T> lhs, const complex<T> rhs){
+    return sqrt(lhs*lhs + rhs*rhs);
+}
 }
