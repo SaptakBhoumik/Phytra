@@ -1,3 +1,4 @@
+#pragma once
 #include "../number.hpp"
 #include "../promote.hpp"
 

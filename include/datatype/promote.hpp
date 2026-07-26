@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include "number.hpp" 
 #include <type_traits>
 #include <cstdint>

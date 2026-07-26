@@ -1,4 +1,6 @@
+#pragma once
 #include "../optional.hpp"
+#include "../ops/ops.hpp"
 
 namespace Phytra{
 //Element wise mathematical functions for optional types
@@ -29,6 +31,10 @@ inline auto exp2(const T& lhs) {
 template<typename T> requires (IsOptional<T>)
 inline auto expm1(const T& lhs) {
     return (has_value(lhs)) ? optional(expm1(get_value(lhs))) : nullopt;
+}
+template<typename T> requires (IsOptional<T>)
+inline auto expp1(const T& lhs) {
+    return (has_value(lhs)) ? optional(expp1(get_value(lhs))) : nullopt;
 }
 
 template<typename T> requires (IsOptional<T>)
@@ -188,16 +194,21 @@ inline auto round(const T& lhs) {
     return (has_value(lhs)) ? optional(round(get_value(lhs))) : nullopt;
 }
 template<typename T> requires (IsOptional<T>)
+inline auto round_even(const T& lhs) {
+    return (has_value(lhs)) ? optional(round_even(get_value(lhs))) : nullopt;
+}
+template<typename T> requires (IsOptional<T>)
 inline auto trunc(const T& lhs) {
     return (has_value(lhs)) ? optional(trunc(get_value(lhs))) : nullopt;
 }
 template<typename T> requires (IsOptional<T>)
 inline auto abs(const T& lhs) {
-    return (has_value(lhs)) ? optional(abs(get_value(lhs))) : nullopt;
-}
-template<typename T> requires (IsOptional<T>)
-inline auto fabs(const T& lhs) {
-    return (has_value(lhs)) ? optional(fabs(get_value(lhs))) : nullopt;
+    if constexpr (std::is_floating_point_v<typename T::value_type>){
+        return (has_value(lhs)) ? optional(fabs(get_value(lhs))) : nullopt;
+    }
+    else{
+        return (has_value(lhs)) ? optional(abs(get_value(lhs))) : nullopt;
+    }
 }
 template<typename T> requires (IsOptional<T>)
 inline auto isnan(const T& lhs) {
@@ -210,6 +221,10 @@ inline auto isinf(const T& lhs) {
 template<typename T> requires (IsOptional<T>)
 inline auto isfinite(const T& lhs) {
     return (has_value(lhs)) ? optional(isfinite(get_value(lhs))) : nullopt;
+}
+template<typename T> requires (IsOptional<T>)
+inline auto isnormal(const T& lhs) {
+    return (has_value(lhs)) ? optional(isnormal(get_value(lhs))) : nullopt;
 }
 template<typename T> requires (IsOptional<T>)
 inline auto signbit(const T& lhs) {
@@ -226,8 +241,8 @@ inline auto max(const T0& lhs, const T1& rhs) {
     return (has_value(lhs) && has_value(rhs)) ? optional(max(get_value(lhs), get_value(rhs))) : nullopt;
 }
 template<typename T0, typename T1> requires (IsOptional<T0> || IsOptional<T1>)
-inline auto fmod(const T0& lhs, const T1& rhs) {
-    return (has_value(lhs) && has_value(rhs)) ? optional(fmod(get_value(lhs), get_value(rhs))) : nullopt;
+inline auto mod(const T0& lhs, const T1& rhs) {
+    return (has_value(lhs) && has_value(rhs)) ? optional(mod(get_value(lhs), get_value(rhs))) : nullopt;
 }
 template<typename T0, typename T1> requires (IsOptional<T0> || IsOptional<T1>)
 inline auto hypot(const T0& lhs, const T1& rhs) {

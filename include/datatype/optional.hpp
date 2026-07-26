@@ -1,23 +1,12 @@
 #pragma once
 #include <utility>
 #include <type_traits>
-
+#include "utils.hpp"
 namespace Phytra{
 struct nullopt_t {
     explicit constexpr nullopt_t(int) {}
 };
 inline constexpr nullopt_t nullopt{0};
-
-template<typename T0, typename T1>
-struct pair {
-    T0 first;
-    T1 second;
-    pair() = default;
-    pair(const T0& f, const T1& s) : first(f), second(s) {}
-    pair(T0&& f, const T1& s) : first(std::move(f)), second(s) {}
-    pair(const T0& f, T1&& s) : first(f), second(std::move(s)) {}
-    pair(T0&& f, T1&& s) : first(std::move(f)), second(std::move(s)) {}
-};
 
 template<typename T> requires (!std::is_same_v<T, nullopt_t>)
 class optional {
@@ -25,6 +14,7 @@ class optional {
     T value_{};
     bool has_value_ = false;
 public:
+    using value_type = T;
     optional() = default;
     optional(nullopt_t) {}
     optional(const T& v) : value_(v), has_value_(true) {}

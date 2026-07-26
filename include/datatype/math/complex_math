@@ -1,0 +1,96 @@
+#pragma once
+#include "../number.hpp"
+#include "../ops/ops.hpp"
+#include "primitive_math.hpp"
+#include "rational_math.hpp"
+
+namespace Phytra{
+//Power/root functions
+template<typename T>
+complex<T> pow(const complex<T> lhs, const complex<T> rhs){
+    auto eular = lhs.to_eular();
+    complex<T> ln_lhs = complex<T>(ln(eular.first), eular.second);
+    complex<T> ln_lhs_times_rhs = ln_lhs * rhs;
+    return complex<T>::from_eular(exp(ln_lhs_times_rhs.r), ln_lhs_times_rhs.i);
+}
+template<typename T>
+complex<T> sqrt(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    auto eular = lhs.to_eular();
+    return complex<T>::from_eular(sqrt(eular.first), eular.second / U(2));
+}
+template<typename T>
+complex<T> cbrt(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    auto eular = lhs.to_eular();
+    return complex<T>::from_eular(cbrt(eular.first), eular.second / U(3));
+}
+
+template<typename T>
+complex<T> exp(const complex<T> lhs){
+    return complex<T>::from_eular(exp(lhs.r), lhs.i);
+}
+template<typename T>
+complex<T> exp2(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    return complex<T>::from_eular(exp(lhs.r)*ln(U(2)), lhs.i*ln(U(2)));
+}
+template<typename T>
+complex<T> expm1(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    return exp(lhs) - complex<T>(U(1), U(0));
+}
+template<typename T>
+complex<T> expp1(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    return exp(lhs) + complex<T>(U(1), U(0));
+}
+
+template<typename T>
+complex<T> ln(const complex<T> lhs){
+    auto eular = lhs.to_eular();
+    return complex<T>(T(ln(eular.first)), T(eular.second));
+}
+template<typename T>
+complex<T> log2(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    const auto eular = lhs.to_eular();
+    const U ln_2 = U(0.6931471805599453);
+    return complex<T>(T(log2(eular.first)), T(eular.second / ln_2));
+}
+template<typename T>
+complex<T> log10(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    const auto eular = lhs.to_eular();
+    const U ln_10 = U(2.302585092994046);
+    return complex<T>(T(log10(eular.first)), T(eular.second / ln_10));
+}
+template<typename T>
+complex<T> log(const complex<T> lhs, const complex<T> rhs){
+    return ln(lhs) / ln(rhs);
+}
+
+template<typename T>
+complex<T> ln_1p(const complex<T> lhs){
+    return ln(complex<T>(T(1) + lhs.r, lhs.i));
+}
+template<typename T>
+complex<T> log2_1p(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    const U ln_2 = U(0.6931471805599453);
+    return ln_1p(lhs) / complex<T>(T(ln_2), T(0));
+}
+template<typename T>
+complex<T> log10_1p(const complex<T> lhs){
+    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
+    const U ln_10 = U(2.302585092994046);
+    return ln_1p(lhs) / complex<T>(T(ln_10), T(0));
+}
+template<typename T>
+complex<T> log_1p(const complex<T> lhs, const complex<T> rhs){
+    return ln_1p(lhs) / ln(rhs);
+}
+
+//Trigonometric functions
+
+}
