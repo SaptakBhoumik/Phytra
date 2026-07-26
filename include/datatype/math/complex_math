@@ -33,7 +33,8 @@ complex<T> exp(const complex<T> lhs){
 template<typename T>
 complex<T> exp2(const complex<T> lhs){
     using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
-    return complex<T>::from_eular(exp(lhs.r)*ln(U(2)), lhs.i*ln(U(2)));
+    const auto ln_2 = U(0.6931471805599453);
+    return complex<T>::from_eular(exp(lhs.r)*ln_2, lhs.i*ln_2);
 }
 template<typename T>
 complex<T> expm1(const complex<T> lhs){
