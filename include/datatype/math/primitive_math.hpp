@@ -247,7 +247,7 @@ __attribute__((always_inline, hot)) bool signbit(const T lhs){
     }
 }
 
-//Other binary functions for optional types
+//Other binary functions
 template<Arithmetic T>
 __attribute__((always_inline, hot)) T min(const T lhs, const T rhs){
     return std::min(lhs, rhs);

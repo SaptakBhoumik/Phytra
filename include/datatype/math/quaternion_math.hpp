@@ -3,6 +3,7 @@
 #include "../ops/ops.hpp"
 #include "primitive_math.hpp"
 #include "rational_math.hpp"
+#include "complex_math.hpp"
 
 namespace Phytra{
 //Power/root functions
@@ -133,5 +134,161 @@ quaternion<T> cos(const quaternion<T> lhs){
 template<typename T>
 quaternion<T> tan(const quaternion<T> lhs){
     return sin(lhs) / cos(lhs);
+}
+template<typename T>
+quaternion<T> sec(const quaternion<T> lhs){
+    return quaternion<T>(T(1)) / cos(lhs);
+}
+template<typename T>
+quaternion<T> cosec(const quaternion<T> lhs){
+    return quaternion<T>(T(1)) / sin(lhs);
+}
+template<typename T>
+quaternion<T> cot(const quaternion<T> lhs){
+    return cos(lhs) / sin(lhs);
+}
+template<typename T>
+quaternion<T> asin(const quaternion<T> lhs){
+    const auto abs_v = sqrt(lhs.i*lhs.i + lhs.j*lhs.j + lhs.k*lhs.k);
+    if(double(abs_v) < 1e-10){
+        return quaternion<T>(T(std::asin(double(lhs.r))), T(0), T(0), T(0));
+    }
+    complex<T> c(double(lhs.r), double(abs_v));
+    complex<T> r = asin(c);
+    const auto coeff = r.i / abs_v;
+    return quaternion<T>(r.r, coeff*lhs.i, coeff*lhs.j, coeff*lhs.k);
+}
+template<typename T>
+quaternion<T> acos(const quaternion<T> lhs){
+    const auto abs_v = sqrt(lhs.i*lhs.i + lhs.j*lhs.j + lhs.k*lhs.k);
+    if(double(abs_v) < 1e-10){
+        return quaternion<T>(T(std::acos(double(lhs.r))), T(0), T(0), T(0));
+    }
+    complex<T> c(double(lhs.r), double(abs_v));
+    complex<T> r = acos(c);
+    const auto coeff = r.i / abs_v;
+    return quaternion<T>(r.r, coeff*lhs.i, coeff*lhs.j, coeff*lhs.k);
+}
+template<typename T>
+quaternion<T> atan(const quaternion<T> lhs){
+    const auto abs_v = sqrt(lhs.i*lhs.i + lhs.j*lhs.j + lhs.k*lhs.k);
+    if(double(abs_v) < 1e-10){
+        return quaternion<T>(T(std::atan(double(lhs.r))), T(0), T(0), T(0));
+    }
+    complex<T> c(double(lhs.r), double(abs_v));
+    complex<T> r = atan(c);
+    const auto coeff = r.i / abs_v;
+    return quaternion<T>(r.r, coeff*lhs.i, coeff*lhs.j, coeff*lhs.k);
+}
+template<typename T>
+quaternion<T> atan2(const quaternion<T> lhs, const quaternion<T> rhs){
+    return atan(lhs / rhs);
+}
+template<typename T>
+quaternion<T> asec(const quaternion<T> lhs){
+    return acos(quaternion<T>(T(1)) / lhs);
+}
+template<typename T>
+quaternion<T> acosec(const quaternion<T> lhs){
+    return asin(quaternion<T>(T(1)) / lhs); 
+}
+template<typename T>
+quaternion<T> acot(const quaternion<T> lhs){
+    return atan(quaternion<T>(T(1)) / lhs);
+}
+template<typename T>
+quaternion<T> acot2(const quaternion<T> lhs, const quaternion<T> rhs){
+    return atan2(rhs, lhs);
+}
+
+template<typename T>
+quaternion<T> sinh(const quaternion<T> lhs){    
+    const auto exp_r = exp(lhs);
+    const auto exp_r_inv = quaternion<T>(T(1), T(0), T(0), T(0)) / exp_r;
+    const auto num = (exp_r - exp_r_inv);
+    return quaternion<T>(num.r/T(2), num.i/T(2), num.j/T(2), num.k/T(2));
+}
+template<typename T>
+quaternion<T> cosh(const quaternion<T> lhs){
+    const auto exp_r = exp(lhs);
+    const auto exp_r_inv = quaternion<T>(T(1), T(0), T(0), T(0)) / exp_r;
+    const auto num = (exp_r + exp_r_inv);
+    return quaternion<T>(num.r/T(2), num.i/T(2), num.j/T(2), num.k/T(2));
+}
+template<typename T>
+quaternion<T> tanh(const quaternion<T> lhs){
+    const auto exp_r = exp(lhs);
+    const auto exp_r_inv = quaternion<T>(T(1), T(0), T(0), T(0)) / exp_r;
+    const auto num = (exp_r - exp_r_inv);
+    const auto den = (exp_r + exp_r_inv);
+    return num / den;
+}
+template<typename T>
+quaternion<T> sech(const quaternion<T> lhs){
+    const auto exp_r = exp(lhs);
+    const auto exp_r_inv = quaternion<T>(T(1), T(0), T(0), T(0)) / exp_r;
+    const auto den = (exp_r + exp_r_inv);
+    return quaternion<T>(T(2), T(0), T(0), T(0)) / den;
+}
+template<typename T>
+quaternion<T> cosech(const quaternion<T> lhs){
+    const auto exp_r = exp(lhs);
+    const auto exp_r_inv = quaternion<T>(T(1), T(0), T(0), T(0)) / exp_r;
+    const auto den = (exp_r - exp_r_inv);
+    return quaternion<T>(T(2), T(0), T(0), T(0)) / den;
+}
+template<typename T>
+quaternion<T> coth(const quaternion<T> lhs){
+    const auto exp_r = exp(lhs);
+    const auto exp_r_inv = quaternion<T>(T(1), T(0), T(0), T(0)) / exp_r;
+    const auto num = (exp_r + exp_r_inv);
+    const auto den = (exp_r - exp_r_inv);
+    return num / den;
+}
+
+template<typename T>
+quaternion<T> asinh(const quaternion<T> lhs){
+    const auto one = quaternion<T>(T(1), T(0), T(0), T(0));
+    return ln(lhs + sqrt(lhs*lhs + one));
+}
+template<typename T>
+quaternion<T> acosh(const quaternion<T> lhs){
+    const auto one = quaternion<T>(T(1), T(0), T(0), T(0));
+    return ln(lhs + sqrt(lhs - one) * sqrt(lhs + one));
+}
+template<typename T>
+quaternion<T> atanh(const quaternion<T> lhs){
+    const auto one  = quaternion<T>(T(1),   T(0), T(0), T(0));
+    const auto half = quaternion<T>(T(0.5), T(0), T(0), T(0));
+    return half * ln((one + lhs) / (one - lhs));
+}
+template<typename T>
+quaternion<T> asech(const quaternion<T> lhs){
+    return acosh(quaternion<T>(T(1), T(0), T(0), T(0)) / lhs);
+}
+template<typename T>
+quaternion<T> acosech(const quaternion<T> lhs){
+    return asinh(quaternion<T>(T(1), T(0), T(0), T(0)) / lhs);
+}
+template<typename T>
+quaternion<T> acoth(const quaternion<T> lhs){
+    return atanh(quaternion<T>(T(1), T(0), T(0), T(0)) / lhs);
+}
+
+
+//Rounding/classification
+template<typename T>
+T abs(const quaternion<T> lhs){
+    return sqrt(lhs.r*lhs.r + lhs.i*lhs.i + lhs.j*lhs.j + lhs.k*lhs.k);
+}
+
+//Other binary functions
+template<typename T>
+quaternion<T> mod(const quaternion<T> lhs, const quaternion<T> rhs){
+    return lhs % rhs;
+}
+template<typename T>
+quaternion<T> hypot(const quaternion<T> lhs, const quaternion<T> rhs){
+    return sqrt(lhs*lhs + rhs*rhs);
 }
 }
