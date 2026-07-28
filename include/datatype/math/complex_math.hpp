@@ -17,13 +17,13 @@ template<typename T>
 complex<T> sqrt(const complex<T> lhs){
     using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
     auto eular = lhs.to_eular();
-    return complex<T>::from_eular(sqrt(eular.first), eular.second / U(2));
+    return complex<T>::from_eular(sqrt(U(eular.first)), U(eular.second) / U(2));
 }
 template<typename T>
 complex<T> cbrt(const complex<T> lhs){
     using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
     auto eular = lhs.to_eular();
-    return complex<T>::from_eular(cbrt(eular.first), eular.second / U(3));
+    return complex<T>::from_eular(cbrt(U(eular.first)), U(eular.second) / U(3));
 }
 
 template<typename T>
@@ -34,17 +34,15 @@ template<typename T>
 complex<T> exp2(const complex<T> lhs){
     using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
     const auto ln_2 = U(0.6931471805599453);
-    return complex<T>::from_eular(exp(lhs.r)*ln_2, lhs.i*ln_2);
+    return complex<T>::from_eular(U(exp(lhs.r))*ln_2, U(lhs.i)*ln_2);
 }
 template<typename T>
 complex<T> expm1(const complex<T> lhs){
-    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
-    return exp(lhs) - complex<T>(U(1), U(0));
+    return exp(lhs) - complex<T>(T(1), T(0));
 }
 template<typename T>
 complex<T> expp1(const complex<T> lhs){
-    using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
-    return exp(lhs) + complex<T>(U(1), U(0));
+    return exp(lhs) + complex<T>(T(1), T(0));
 }
 
 template<typename T>
@@ -57,14 +55,14 @@ complex<T> log2(const complex<T> lhs){
     using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
     const auto eular = lhs.to_eular();
     const U ln_2 = U(0.6931471805599453);
-    return complex<T>(T(log2(eular.first)), T(eular.second / ln_2));
+    return complex<T>(T(log2(eular.first)), T(U(eular.second) / ln_2));
 }
 template<typename T>
 complex<T> log10(const complex<T> lhs){
     using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
     const auto eular = lhs.to_eular();
     const U ln_10 = U(2.302585092994046);
-    return complex<T>(T(log10(eular.first)), T(eular.second / ln_10));
+    return complex<T>(T(log10(eular.first)), T(U(eular.second) / ln_10));
 }
 template<typename T>
 complex<T> log(const complex<T> lhs, const complex<T> rhs){
@@ -79,13 +77,15 @@ template<typename T>
 complex<T> log2_1p(const complex<T> lhs){
     using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
     const U ln_2 = U(0.6931471805599453);
-    return ln_1p(lhs) / complex<T>(T(ln_2), T(0));
+    const auto ln_1p_lhs = ln_1p(lhs);
+    return complex<T>(T(U(ln_1p_lhs.r) / ln_2), T(U(ln_1p_lhs.i) / ln_2));
 }
 template<typename T>
 complex<T> log10_1p(const complex<T> lhs){
     using U = std::conditional_t<std::is_floating_point_v<T> || is_rational<T>::value, T, double>;
     const U ln_10 = U(2.302585092994046);
-    return ln_1p(lhs) / complex<T>(T(ln_10), T(0));
+    const auto ln_1p_lhs = ln_1p(lhs);
+    return complex<T>(T(U(ln_1p_lhs.r) / ln_10), T(U(ln_1p_lhs.i) / ln_10));
 }
 template<typename T>
 complex<T> log_1p(const complex<T> lhs, const complex<T> rhs){
